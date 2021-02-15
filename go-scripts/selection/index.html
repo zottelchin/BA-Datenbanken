@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Pinder</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+</head>
+<body>
+  <h1 class="has-text-centered is-1 mt-4 title">Pinder</h1>
+  <hr>
+  <div id="app" class="container">
+      <div style="position:absolute; bottom: 0; right: 0;">{{ papers.length }}</div>
+      <a :href="'https://doi.org/' + papers[0].DOI" target="_blank" class="button is-pulled-right">Link zur Doi</a>
+      <h3 class="subtitle is-3 has-text-centered">{{ papers[0].Title }}</h3>
+      <div class="content"><small>Abstract:&nbsp;</small>{{ papers[0].Abstract ? papers[0].Abstract : '-' }}</div>
+
+      <div class="level">
+        <p></p>
+        <a class="button is-danger" @click="del()">Löschen</a>
+        <a class="button" @click="papers.shift()">Überspringen</a>
+        <a class="button is-success" @click="sav()">Speichern</a>
+        <p></p>
+      </div>
+      <!-- {{ papers[0] }} -->
+  </div>
+
+  <script>
+      var app = new Vue({
+          el: '#app',
+          data(){
+              setTimeout(() => this.load())
+              return {
+                papers: []
+          }},
+          methods: {
+              async load() {
+                  let res = await fetch("/all");
+                  if (!res.ok) return console.log("can not fetch");
+                  this.papers = await res.json();
+              },
+              async del() {
+                  let res = await fetch("/" + this.papers[0].ID, {method: "DELETE"})
+                  if (!res.ok) return alert("Error")
+                  this.papers.shift()
+              },
+              async sav() {
+                  let res = await fetch("/" + this.papers[0].ID, {method: "POST"})
+                  if (!res.ok) return alert("Error")
+                  this.papers.shift()
+              }
+          }
+      })
+  </script>
+
+</body>
+</html>
